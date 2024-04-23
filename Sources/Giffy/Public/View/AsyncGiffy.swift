@@ -14,8 +14,8 @@ public struct AsyncGiffy<Content: View>: View {
     private let content: (AsyncGiffyPhase) -> Content
     @State private var phase: AsyncGiffyPhase = .loading
     
-    let url: URL
-    
+    @Binding var url: URL
+
     private let logger = Logger(
         subsystem: "Giffy",
         category: String(describing: AsyncGiffy.self)
@@ -25,10 +25,10 @@ public struct AsyncGiffy<Content: View>: View {
     /// - Parameters:
     ///   - url: The remote URL of an animated GIF image to be displayed
     ///   - content: A closure that takes the current phase as an input and returns the view to be displayed in each phase
-    public init(url: URL,
+    public init(url: Binding<URL>,
                 @ViewBuilder content: @escaping (AsyncGiffyPhase) -> Content) {
         self.content = content
-        self.url = url
+        self._url = url
     }
     
     public var body: some View {
@@ -45,24 +45,5 @@ public struct AsyncGiffy<Content: View>: View {
                     }
                 }
             }
-    }
-}
-
-struct Giffy_Previews: PreviewProvider {
-    static var previews: some View {
-        AsyncGiffy(url: .init(string: "https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif")!) { phase in
-            switch phase {
-            case .loading:
-                Text("Loading...")
-            case .error:
-                Text("Error")
-            case .success(let gif):
-                gif
-                    .onLoop {
-                        print("Finished looping!")
-                    }
-                    .frame(height: 120)
-            }
-        }
     }
 }
